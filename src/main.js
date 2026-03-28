@@ -98,7 +98,7 @@ function updateDots() {
 function animate(t) {
   requestAnimationFrame(animate);
   updateDots();
-  drawDots(ctx, dots, state.bgColor);
+  drawDots(ctx, dots, state.bgColor, state.dotShape);
 }
 
 function startLoop() {
