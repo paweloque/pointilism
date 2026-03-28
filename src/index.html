@@ -539,6 +539,25 @@
     transform: translateY(0);
   }
 
+  .bottom-sheet-handle {
+    display: flex;
+    justify-content: center;
+    padding: 8px 0 12px;
+    cursor: pointer;
+  }
+
+  .bottom-sheet-handle::after {
+    content: '';
+    width: 32px;
+    height: 2px;
+    background: var(--mid);
+    transition: background 0.15s;
+  }
+
+  .bottom-sheet-handle:hover::after {
+    background: var(--ink);
+  }
+
   .bottom-sheet .control { margin-bottom: 14px; }
   .bottom-sheet .control:last-child { margin-bottom: 0; }
 
@@ -766,6 +785,7 @@
   <input type="file" id="file-input" accept="image/*" hidden>
   <button class="mobile-fab" id="mobile-fab">&#9881;</button>
   <div class="bottom-sheet" id="bottom-sheet">
+    <div class="bottom-sheet-handle" id="bottom-sheet-handle"></div>
     <div class="control">
       <label style="margin-bottom:8px;display:block">Background</label>
       <div class="color-row">
