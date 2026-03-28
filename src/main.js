@@ -262,21 +262,25 @@ const PRESETS = {
   energy: { stride: 2, dotSize: 0.6, sizeScaling: 1.0, threshold: 0.005, bgColor: '#000', mouseRadius: 120, mouseStrength: 30, mouseEasing: 0.12, breathing: true, sway: true, rise: true },
 };
 
+let applyingPreset = false;
+
 document.querySelectorAll('.preset-btn').forEach((el) => {
   el.addEventListener('click', () => {
     const preset = PRESETS[el.dataset.preset];
     if (!preset) return;
+    applyingPreset = true;
     Object.entries(preset).forEach(([k, v]) => set(k, v));
+    applyingPreset = false;
     document.querySelectorAll('.preset-btn').forEach((s) => s.classList.remove('active'));
     el.classList.add('active');
     syncControlsFromState();
   });
 });
 
-// Deactivate preset when user manually changes a param
+// Deactivate preset highlight on manual parameter change
 onChange(() => {
-  // Only deactivate if change didn't come from a preset click
-  // (preset clicks call syncControlsFromState which won't re-trigger this)
+  if (applyingPreset) return;
+  document.querySelectorAll('.preset-btn').forEach((s) => s.classList.remove('active'));
 });
 
 // --- Upload ---
