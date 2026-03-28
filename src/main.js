@@ -5,19 +5,35 @@ import { createDemoImage } from './demo-image.js';
 const canvas = document.getElementById('scene');
 const ctx = canvas.getContext('2d');
 
+let currentImage = null;
+let W = 0;
+let H = 0;
+
 function resize() {
   const rect = canvas.getBoundingClientRect();
-  canvas.width = Math.round(rect.width);
-  canvas.height = Math.round(rect.height);
+  const newW = Math.round(rect.width);
+  const newH = Math.round(rect.height);
+  if (newW === W && newH === H) return;
+  W = newW;
+  H = newH;
+  canvas.width = W;
+  canvas.height = H;
+  render();
 }
-
-let currentImage = null;
 
 function render() {
-  if (!currentImage || !canvas.width || !canvas.height) return;
-  const { dots } = sampleImage(currentImage, canvas.width, canvas.height);
+  if (!currentImage || !W || !H) return;
+  const { dots } = sampleImage(currentImage, W, H);
   drawDots(ctx, dots);
 }
+
+// Debounced resize via ResizeObserver
+let resizeTimer;
+const ro = new ResizeObserver(() => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(resize, 150);
+});
+ro.observe(canvas);
 
 async function init() {
   resize();
