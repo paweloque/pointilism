@@ -353,10 +353,24 @@
     position: absolute;
     inset: 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 20px;
     cursor: pointer;
     z-index: 1;
+  }
+
+  .upload-tagline {
+    text-align: center;
+    max-width: 320px;
+  }
+
+  .upload-tagline p {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    color: #555;
+    line-height: 1.7;
   }
 
   .upload-hint {
@@ -742,6 +756,10 @@
   <div class="focal-point" id="focal-point"></div>
   <div class="upload-overlay" id="upload-overlay">
     <div class="upload-hint">drop image or click to upload</div>
+    <div class="upload-tagline">
+      <p>turn any picture into a dotted html page.</p>
+      <p>your image stays in your browser — nothing is uploaded.</p>
+    </div>
   </div>
   <div class="upload-error" id="upload-error"></div>
   <input type="file" id="file-input" accept="image/*" hidden>
