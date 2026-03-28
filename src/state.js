@@ -9,6 +9,9 @@ const DEFAULTS = {
   // Color
   tintColor: null,
   tintBlend: 0,
+  // Focal point
+  focalX: 0.5,
+  focalY: 0.5,
   // Interaction
   mouseRadius: 80,
   mouseStrength: 18,
@@ -19,10 +22,10 @@ const DEFAULTS = {
   rise: false,
 };
 
-const RESAMPLE_KEYS = new Set(['stride', 'threshold', 'bgColor']);
+const RESAMPLE_KEYS = new Set(['stride', 'threshold', 'bgColor', 'focalX', 'focalY']);
 
 const GROUPS = {
-  dots: ['stride', 'dotSize', 'sizeScaling', 'threshold', 'dotShape'],
+  dots: ['stride', 'dotSize', 'sizeScaling', 'threshold', 'dotShape', 'focalX', 'focalY'],
   color: ['bgColor', 'tintColor', 'tintBlend'],
   interaction: ['mouseRadius', 'mouseStrength', 'mouseEasing'],
   motion: ['breathing', 'sway', 'rise'],

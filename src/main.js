@@ -12,6 +12,7 @@ const fileInput = document.getElementById('file-input');
 const uploadError = document.getElementById('upload-error');
 const btnUpload = document.getElementById('btn-upload');
 const particleCountEl = document.getElementById('particle-count');
+const focalPointEl = document.getElementById('focal-point');
 
 let currentImage = null;
 let dots = [];
@@ -35,6 +36,38 @@ canvas.addEventListener('mouseleave', () => {
   mouse.y = -9999;
 });
 
+// --- Focal point drag (desktop only) ---
+
+function updateFocalPointPosition() {
+  focalPointEl.style.left = (state.focalX * 100) + '%';
+  focalPointEl.style.top = (state.focalY * 100) + '%';
+}
+
+let focalDragging = false;
+
+focalPointEl.addEventListener('mousedown', (e) => {
+  e.preventDefault();
+  focalDragging = true;
+  focalPointEl.classList.add('dragging');
+});
+
+window.addEventListener('mousemove', (e) => {
+  if (!focalDragging) return;
+  const rect = canvasArea.getBoundingClientRect();
+  const fx = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+  const fy = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+  set('focalX', fx);
+  set('focalY', fy);
+  updateFocalPointPosition();
+});
+
+window.addEventListener('mouseup', () => {
+  if (focalDragging) {
+    focalDragging = false;
+    focalPointEl.classList.remove('dragging');
+  }
+});
+
 // --- Sampling ---
 
 function resample() {
@@ -45,6 +78,8 @@ function resample() {
     baseSize: state.dotSize,
     sizeScaling: state.sizeScaling,
     lightBackground: hexLuminance(state.bgColor) >= 0.5,
+    focalX: state.focalX,
+    focalY: state.focalY,
   });
   dots = result.dots;
   grid = buildGrid(dots, state.mouseRadius);
@@ -137,6 +172,9 @@ function syncControlsFromState() {
   setSlider('ctrl-tint', 'val-tint', state.tintBlend, state.tintBlend > 0 ? state.tintBlend + '%' : 'off');
   setSlider('ctrl-radius', 'val-radius', state.mouseRadius, state.mouseRadius + 'px');
   setSlider('ctrl-strength', 'val-strength', state.mouseStrength, String(state.mouseStrength));
+
+  // Focal point
+  updateFocalPointPosition();
 
   // Swatches
   document.querySelectorAll('.color-swatch').forEach((el) => {
