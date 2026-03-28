@@ -311,14 +311,32 @@ function startLoop() {
 
 // --- State → canvas ---
 
+// Leading+trailing debounce: resample immediately on first change,
+// then wait before allowing another resample (gives instant feedback).
 let resampleTimer;
+let resamplePending = false;
+
+function debouncedResample() {
+  if (!resampleTimer) {
+    // Leading edge: resample immediately
+    resample();
+    resampleTimer = setTimeout(() => {
+      resampleTimer = null;
+      if (resamplePending) {
+        resamplePending = false;
+        resample();
+      }
+    }, 200);
+  } else {
+    // Trailing edge: mark pending
+    resamplePending = true;
+  }
+}
 
 onChange((key, tier) => {
   if (tier === 'resample') {
-    clearTimeout(resampleTimer);
-    resampleTimer = setTimeout(resample, 250);
+    debouncedResample();
   }
-  // Rebuild grid if mouse radius changed
   if (key === 'mouseRadius' && dots.length > 0) {
     grid = buildGrid(dots, state.mouseRadius);
   }
