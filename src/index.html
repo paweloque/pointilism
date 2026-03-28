@@ -448,6 +448,91 @@
   @media (max-width: 1024px) {
     .focal-point { display: none; }
   }
+
+  /* --- Medium: sidebar as overlay --- */
+
+  .sidebar-toggle {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    z-index: 3;
+    width: 24px;
+    height: 48px;
+    border: var(--line);
+    border-left: none;
+    background: var(--bg);
+    cursor: pointer;
+    font-size: 0.7rem;
+    color: var(--mid);
+    padding: 0;
+  }
+
+  .sidebar-toggle:hover { color: var(--ink); }
+
+  @media (max-width: 1024px) and (min-width: 641px) {
+    .sidebar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      z-index: 10;
+      transform: translateX(-100%);
+      transition: transform 0.2s;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .sidebar-toggle { display: block; }
+    .sidebar.open ~ .canvas-area .sidebar-toggle { left: 300px; }
+  }
+
+  /* --- Small: bottom sheet --- */
+
+  .mobile-fab {
+    display: none;
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    border: var(--line);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 1.2rem;
+    cursor: pointer;
+    z-index: 3;
+    padding: 0;
+    line-height: 44px;
+    text-align: center;
+  }
+
+  .bottom-sheet {
+    display: none;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    background: var(--bg);
+    border-top: var(--line);
+    padding: 20px 28px;
+    transform: translateY(100%);
+    transition: transform 0.2s;
+  }
+
+  .bottom-sheet.open {
+    transform: translateY(0);
+  }
+
+  .bottom-sheet .control { margin-bottom: 14px; }
+  .bottom-sheet .control:last-child { margin-bottom: 0; }
+
+  @media (max-width: 640px) {
+    .sidebar { display: none; }
+    .sidebar-toggle { display: none; }
+    .mobile-fab { display: block; }
+    .bottom-sheet { display: block; }
+  }
 </style>
 </head>
 <body>
@@ -566,6 +651,8 @@
   </div>
 </div>
 
+<button class="sidebar-toggle" id="sidebar-toggle">&#9776;</button>
+
 <div class="canvas-area" id="canvas-area">
   <canvas id="scene"></canvas>
   <div class="focal-point" id="focal-point"></div>
@@ -574,6 +661,37 @@
   </div>
   <div class="upload-error" id="upload-error"></div>
   <input type="file" id="file-input" accept="image/*" hidden>
+  <button class="mobile-fab" id="mobile-fab">&#9881;</button>
+  <div class="bottom-sheet" id="bottom-sheet">
+    <div class="control">
+      <label style="margin-bottom:8px;display:block">Background</label>
+      <div class="color-row">
+        <div class="color-swatch active" data-color="#000" style="background:#000"></div>
+        <div class="color-swatch" data-color="#111" style="background:#111"></div>
+        <div class="color-swatch" data-color="#0a0a2e" style="background:#0a0a2e"></div>
+        <div class="color-swatch" data-color="#eee" style="background:#eee"></div>
+        <div class="color-swatch" data-color="#fff" style="background:#fff"></div>
+      </div>
+    </div>
+    <div class="control">
+      <div class="control-header">
+        <label>Density</label><span class="value" id="val-stride-m">3</span>
+      </div>
+      <input type="range" id="ctrl-stride-m" min="1" max="10" value="3">
+    </div>
+    <div class="control">
+      <div class="control-header">
+        <label>Size</label><span class="value" id="val-size-m">0.4</span>
+      </div>
+      <input type="range" id="ctrl-size-m" min="1" max="30" value="4">
+    </div>
+    <div class="control" style="margin-top:14px">
+      <button class="btn btn-primary" id="btn-upload-m" style="width:100%">upload image</button>
+    </div>
+    <div class="control">
+      <button class="btn" id="btn-export-m" style="width:100%">export .html</button>
+    </div>
+  </div>
 </div>
 
 <script type="module" src="./main.js"></script>

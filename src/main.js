@@ -379,6 +379,30 @@ canvasArea.addEventListener('drop', (e) => {
   if (file) handleFile(file);
 });
 
+// --- Responsive: sidebar toggle + bottom sheet ---
+
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const sidebar = document.querySelector('.sidebar');
+const mobileFab = document.getElementById('mobile-fab');
+const bottomSheet = document.getElementById('bottom-sheet');
+
+sidebarToggle.addEventListener('click', () => {
+  sidebar.classList.toggle('open');
+});
+
+mobileFab.addEventListener('click', () => {
+  bottomSheet.classList.toggle('open');
+});
+
+// Wire mobile bottom sheet controls
+wireSlider('ctrl-stride-m', 'val-stride-m', 'stride', (v) => v, (v) => String(v));
+wireSlider('ctrl-size-m', 'val-size-m', 'dotSize', (v) => v / 10, (v) => (v / 10).toFixed(1));
+
+document.getElementById('btn-upload-m').addEventListener('click', () => fileInput.click());
+document.getElementById('btn-export-m').addEventListener('click', () => {
+  document.getElementById('btn-export').click();
+});
+
 // --- Resize ---
 
 let resizeTimer;
