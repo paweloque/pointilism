@@ -30,6 +30,8 @@ const DEFAULTS = {
   rise: false,
   riseSpeedMultiplier: 1.0,
   escape: true,
+  sparkle: false,
+  sparkleSpeed: 1.0,
 };
 
 const RESAMPLE_KEYS = new Set(['stride', 'threshold', 'bgColor', 'focalX', 'focalY', 'textContent', 'textFont', 'textSize', 'textX', 'textY']);
@@ -38,7 +40,7 @@ const GROUPS = {
   dots: ['stride', 'dotSize', 'sizeScaling', 'threshold', 'dotShape', 'focalX', 'focalY'],
   color: ['bgColor', 'tintColor', 'tintBlend'],
   interaction: ['mouseRadius', 'mouseStrength', 'mouseEasing'],
-  motion: ['breathing', 'breatheIntensity', 'sway', 'swayIntensity', 'rise', 'riseSpeedMultiplier', 'escape'],
+  motion: ['breathing', 'breatheIntensity', 'sway', 'swayIntensity', 'rise', 'riseSpeedMultiplier', 'escape', 'sparkle', 'sparkleSpeed'],
 };
 
 const listeners = [];

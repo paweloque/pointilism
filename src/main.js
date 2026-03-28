@@ -199,6 +199,8 @@ function updateDots(t) {
   const doRise = state.rise;
   const riseMult = state.riseSpeedMultiplier;
   const doEscape = state.escape;
+  const doSparkle = state.sparkle;
+  const sparkleSpeed = state.sparkleSpeed;
 
   for (let i = 0; i < dots.length; i++) {
     const d = dots[i];
@@ -238,6 +240,20 @@ function updateDots(t) {
     if (doBreathing) {
       const breathe = (1 - breatheAmp) + breatheAmp * Math.sin(t * d.breatheFreq + d.breathePhase);
       alphaMultiplier *= breathe;
+    }
+
+    // Sparkle: independent lifecycle (fade in → visible → fade out → loop)
+    if (doSparkle) {
+      const progress = ((t * sparkleSpeed / d.lifecycleDuration) + d.lifecycleOffset) % 1;
+      let sparkleAlpha;
+      if (progress < 0.15) {
+        sparkleAlpha = progress / 0.15; // fade in
+      } else if (progress < 0.75) {
+        sparkleAlpha = 1; // visible
+      } else {
+        sparkleAlpha = 1 - (progress - 0.75) / 0.25; // fade out
+      }
+      alphaMultiplier *= sparkleAlpha;
     }
 
     d.drawAlpha = d.alpha * alphaMultiplier;
@@ -322,6 +338,7 @@ function syncControlsFromState() {
   setSlider('ctrl-breathe-int', 'val-breathe-int', state.breatheIntensity * 100, Math.round(state.breatheIntensity * 100) + '%');
   setSlider('ctrl-sway-int', 'val-sway-int', state.swayIntensity * 100, Math.round(state.swayIntensity * 100) + '%');
   setSlider('ctrl-rise-speed', 'val-rise-speed', state.riseSpeedMultiplier * 100, Math.round(state.riseSpeedMultiplier * 100) + '%');
+  setSlider('ctrl-sparkle-speed', 'val-sparkle-speed', state.sparkleSpeed * 100, Math.round(state.sparkleSpeed * 100) + '%');
 
   // Focal point
   updateFocalPointPosition();
@@ -379,12 +396,13 @@ wireSlider('ctrl-strength', 'val-strength', 'mouseStrength', (v) => v, (v) => St
 wireSlider('ctrl-breathe-int', 'val-breathe-int', 'breatheIntensity', (v) => v / 100, (v) => Math.round(v * 100) + '%');
 wireSlider('ctrl-sway-int', 'val-sway-int', 'swayIntensity', (v) => v / 100, (v) => Math.round(v * 100) + '%');
 wireSlider('ctrl-rise-speed', 'val-rise-speed', 'riseSpeedMultiplier', (v) => v / 100, (v) => Math.round(v * 100) + '%');
+wireSlider('ctrl-sparkle-speed', 'val-sparkle-speed', 'sparkleSpeed', (v) => v / 100, (v) => Math.round(v * 100) + '%');
 
 // Physics presets
 const PHYSICS_PRESETS = {
-  off: { breathing: false, breatheIntensity: 0.12, sway: false, swayIntensity: 1.0, rise: false, riseSpeedMultiplier: 1.0, escape: true },
-  subtle: { breathing: true, breatheIntensity: 0.08, sway: true, swayIntensity: 0.5, rise: false, riseSpeedMultiplier: 1.0, escape: true },
-  animated: { breathing: true, breatheIntensity: 0.15, sway: true, swayIntensity: 1.0, rise: true, riseSpeedMultiplier: 1.0, escape: true },
+  off: { breathing: false, breatheIntensity: 0.12, sway: false, swayIntensity: 1.0, rise: false, riseSpeedMultiplier: 1.0, escape: true, sparkle: false, sparkleSpeed: 1.0 },
+  subtle: { breathing: true, breatheIntensity: 0.08, sway: true, swayIntensity: 0.5, rise: false, riseSpeedMultiplier: 1.0, escape: true, sparkle: false, sparkleSpeed: 1.0 },
+  animated: { breathing: true, breatheIntensity: 0.15, sway: true, swayIntensity: 1.0, rise: true, riseSpeedMultiplier: 1.0, escape: true, sparkle: true, sparkleSpeed: 1.0 },
 };
 
 document.querySelectorAll('[data-physics]').forEach((el) => {

@@ -138,6 +138,9 @@ export function samplePixels(data, width, height, options = {}) {
         // Escape
         escapeDX: Math.cos(escapeAngle) * escapeStrength * 30,
         escapeDY: Math.sin(escapeAngle) * escapeStrength * 22,
+        // Sparkle (lifecycle)
+        lifecycleDuration: 4000 + Math.random() * 8000,
+        lifecycleOffset: Math.random(),
       });
     }
   }
