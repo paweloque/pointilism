@@ -35,6 +35,8 @@ describe('samplePixels', () => {
     expect(result.dots.length).toBeGreaterThan(0);
 
     const dot = result.dots[0];
+    expect(dot).toHaveProperty('ox');
+    expect(dot).toHaveProperty('oy');
     expect(dot).toHaveProperty('x');
     expect(dot).toHaveProperty('y');
     expect(dot).toHaveProperty('brightness');

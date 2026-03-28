@@ -10,8 +10,16 @@ const fileInput = document.getElementById('file-input');
 const uploadError = document.getElementById('upload-error');
 
 let currentImage = null;
+let dots = [];
 let W = 0;
 let H = 0;
+let animating = false;
+
+function resample() {
+  if (!currentImage || !W || !H) return;
+  const result = sampleImage(currentImage, W, H);
+  dots = result.dots;
+}
 
 function resize() {
   const rect = canvas.getBoundingClientRect();
@@ -22,13 +30,20 @@ function resize() {
   H = newH;
   canvas.width = W;
   canvas.height = H;
-  render();
+  resample();
 }
 
-function render() {
-  if (!currentImage || !W || !H) return;
-  const { dots } = sampleImage(currentImage, W, H);
+// --- Animation loop ---
+
+function animate(t) {
+  requestAnimationFrame(animate);
   drawDots(ctx, dots);
+}
+
+function startLoop() {
+  if (animating) return;
+  animating = true;
+  requestAnimationFrame(animate);
 }
 
 // --- Upload ---
@@ -63,13 +78,12 @@ async function handleFile(file) {
   try {
     currentImage = await loadImageFromFile(file);
     uploadOverlay.classList.add('hidden');
-    render();
+    resample();
   } catch (e) {
     showError(e.message === 'not an image' ? 'not an image file' : 'failed to load image');
   }
 }
 
-// Click overlay → open file picker
 uploadOverlay.addEventListener('click', () => fileInput.click());
 
 fileInput.addEventListener('change', () => {
@@ -79,7 +93,6 @@ fileInput.addEventListener('change', () => {
   fileInput.value = '';
 });
 
-// Drag and drop (always active on canvas area, even after overlay hidden)
 canvasArea.addEventListener('dragover', (e) => {
   e.preventDefault();
   canvasArea.classList.add('dragover');
@@ -110,7 +123,8 @@ ro.observe(canvas);
 async function init() {
   resize();
   currentImage = await createDemoImage(W, H);
-  render();
+  resample();
+  startLoop();
 }
 
 init();

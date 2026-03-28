@@ -71,6 +71,8 @@ export function samplePixels(data, width, height, options = {}) {
       if (brightness < threshold) continue;
 
       dots.push({
+        ox: x,
+        oy: y,
         x,
         y,
         brightness,
