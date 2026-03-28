@@ -43,11 +43,11 @@ describe('set', () => {
     unsub();
   });
 
-  it('emits change with repaint tier for bgColor', () => {
+  it('emits change with resample tier for bgColor', () => {
     const fn = vi.fn();
     const unsub = onChange(fn);
     set('bgColor', '#fff');
-    expect(fn).toHaveBeenCalledWith('bgColor', 'repaint');
+    expect(fn).toHaveBeenCalledWith('bgColor', 'resample');
     unsub();
   });
 

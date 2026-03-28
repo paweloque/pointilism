@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { samplePixels, MAX_PARTICLES } from './sampler.js';
+import { samplePixels, hexLuminance, MAX_PARTICLES } from './sampler.js';
 
 /**
  * Create a flat RGBA pixel array filled with a single color.
@@ -14,6 +14,24 @@ function makePixels(width, height, r, g, b) {
   }
   return data;
 }
+
+describe('hexLuminance', () => {
+  it('returns 0 for black', () => {
+    expect(hexLuminance('#000000')).toBeCloseTo(0);
+  });
+
+  it('returns 1 for white', () => {
+    expect(hexLuminance('#ffffff')).toBeCloseTo(1);
+  });
+
+  it('returns ~0.5 for mid-gray', () => {
+    expect(hexLuminance('#808080')).toBeCloseTo(0.5, 1);
+  });
+
+  it('handles short hex', () => {
+    expect(hexLuminance('#000')).toBeCloseTo(0);
+  });
+});
 
 describe('samplePixels', () => {
   it('returns dots from bright pixels', () => {
@@ -88,6 +106,26 @@ describe('samplePixels', () => {
     const r1 = samplePixels(data, 12, 12, { stride: 2 });
     const r2 = samplePixels(data, 12, 12, { stride: 4 });
     expect(r1.particleCount).toBeGreaterThan(r2.particleCount);
+  });
+
+  it('light background skips near-white pixels', () => {
+    const data = makePixels(12, 12, 250, 250, 250);
+    const result = samplePixels(data, 12, 12, {
+      stride: 3,
+      threshold: 0.05,
+      lightBackground: true,
+    });
+    expect(result.dots.length).toBe(0);
+  });
+
+  it('light background keeps dark pixels', () => {
+    const data = makePixels(12, 12, 30, 30, 30);
+    const result = samplePixels(data, 12, 12, {
+      stride: 3,
+      threshold: 0.05,
+      lightBackground: true,
+    });
+    expect(result.dots.length).toBeGreaterThan(0);
   });
 
   it('respects custom baseSize and sizeScaling', () => {

@@ -19,7 +19,7 @@ const DEFAULTS = {
   rise: false,
 };
 
-const RESAMPLE_KEYS = new Set(['stride', 'threshold']);
+const RESAMPLE_KEYS = new Set(['stride', 'threshold', 'bgColor']);
 
 const GROUPS = {
   dots: ['stride', 'dotSize', 'sizeScaling', 'threshold', 'dotShape'],

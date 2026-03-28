@@ -38,6 +38,19 @@ export function coverFit(img, width, height, focalX = 0.5, focalY = 0.5) {
  * @param {object} [options]
  * @returns {{ dots: Array, particleCount: number, capped: boolean }}
  */
+/**
+ * Calculate luminance from a hex color string (0-1).
+ */
+export function hexLuminance(hex) {
+  let h = hex.replace('#', '');
+  if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+  const v = parseInt(h, 16);
+  const r = ((v >> 16) & 255) / 255;
+  const g = ((v >> 8) & 255) / 255;
+  const b = (v & 255) / 255;
+  return r * 0.299 + g * 0.587 + b * 0.114;
+}
+
 export function samplePixels(data, width, height, options = {}) {
   const {
     stride: requestedStride = DEFAULT_STRIDE,
@@ -46,6 +59,7 @@ export function samplePixels(data, width, height, options = {}) {
     sizeScaling = DEFAULT_SIZE_SCALING,
     baseAlpha = DEFAULT_BASE_ALPHA,
     alphaScaling = DEFAULT_ALPHA_SCALING,
+    lightBackground = false,
   } = options;
 
   // Adaptive stride: ensure we can cover the whole image within budget.
@@ -68,7 +82,13 @@ export function samplePixels(data, width, height, options = {}) {
 
       const brightness = (r * 0.299 + g * 0.587 + b * 0.114) / 255;
 
-      if (brightness < threshold) continue;
+      // Dark bg: skip pixels darker than threshold
+      // Light bg: skip pixels brighter than (1 - threshold)
+      if (lightBackground) {
+        if (brightness > 1 - threshold) continue;
+      } else {
+        if (brightness < threshold) continue;
+      }
 
       dots.push({
         ox: x,

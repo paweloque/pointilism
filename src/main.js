@@ -1,4 +1,4 @@
-import { sampleImage } from './sampler.js';
+import { sampleImage, hexLuminance } from './sampler.js';
 import { drawDots } from './renderer.js';
 import { createDemoImage } from './demo-image.js';
 import { buildGrid, queryRadius } from './spatial-grid.js';
@@ -44,6 +44,7 @@ function resample() {
     threshold: state.threshold,
     baseSize: state.dotSize,
     sizeScaling: state.sizeScaling,
+    lightBackground: hexLuminance(state.bgColor) >= 0.5,
   });
   dots = result.dots;
   grid = buildGrid(dots, state.mouseRadius);
