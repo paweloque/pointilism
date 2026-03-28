@@ -60,6 +60,65 @@ canvas.addEventListener('mouseleave', () => {
   mouse.y = -9999;
 });
 
+// Touch support
+canvas.addEventListener('touchstart', (e) => {
+  e.preventDefault();
+  const t = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = t.clientX - rect.left;
+  mouse.y = t.clientY - rect.top;
+}, { passive: false });
+
+canvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  const t = e.touches[0];
+  const rect = canvas.getBoundingClientRect();
+  mouse.x = t.clientX - rect.left;
+  mouse.y = t.clientY - rect.top;
+}, { passive: false });
+
+canvas.addEventListener('touchend', () => {
+  mouse.x = -9999;
+  mouse.y = -9999;
+});
+
+// --- Gyroscope / tilt ---
+
+let gyroEnabled = false;
+
+function handleOrientation(e) {
+  if (!gyroEnabled) return;
+  // gamma: left-right tilt (-90..90), beta: front-back tilt (-180..180)
+  const gamma = e.gamma || 0; // left-right
+  const beta = e.beta || 0;   // front-back
+  // Map tilt to virtual mouse position (center = neutral)
+  mouse.x = (W / 2) + (gamma / 45) * (W / 2);
+  mouse.y = (H / 2) + ((beta - 45) / 45) * (H / 2); // 45° = phone held naturally
+}
+
+async function enableGyro() {
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    try {
+      const perm = await DeviceOrientationEvent.requestPermission();
+      if (perm !== 'granted') return;
+    } catch { return; }
+  }
+  window.addEventListener('deviceorientation', handleOrientation);
+  gyroEnabled = true;
+}
+
+// Show tilt prompt on mobile if supported
+if (typeof DeviceOrientationEvent !== 'undefined' && window.innerWidth <= 640) {
+  const tiltBtn = document.createElement('button');
+  tiltBtn.textContent = 'enable tilt';
+  tiltBtn.style.cssText = 'position:fixed;bottom:72px;right:20px;z-index:5;font-family:inherit;font-size:0.65rem;padding:6px 14px;border:1px solid #333;background:rgba(0,0,0,0.8);color:#888;cursor:pointer;letter-spacing:0.1em';
+  document.body.appendChild(tiltBtn);
+  tiltBtn.addEventListener('click', async () => {
+    await enableGyro();
+    tiltBtn.remove();
+  });
+}
+
 // --- Focal point drag (desktop only) ---
 
 function updateFocalPointPosition() {
@@ -209,8 +268,18 @@ function updateDots(t) {
   }
 }
 
+// --- Performance ---
+
+const isLowEnd = (navigator.hardwareConcurrency || 4) <= 2 ||
+  (window.innerWidth <= 640 && window.devicePixelRatio >= 2);
+const frameBudget = isLowEnd ? 33.3 : 16.6; // 30 vs 60 FPS target
+let lastFrameTime = 0;
+
 function animate(t) {
   requestAnimationFrame(animate);
+  // Skip frame if under budget on low-end devices
+  if (isLowEnd && t - lastFrameTime < frameBudget) return;
+  lastFrameTime = t;
   updateDots(t);
   drawDots(ctx, dots, state.bgColor, state.dotShape, {
     color: state.tintColor,
