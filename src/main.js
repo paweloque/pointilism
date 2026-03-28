@@ -1,6 +1,7 @@
 import { sampleImage } from './sampler.js';
 import { drawDots } from './renderer.js';
 import { createDemoImage } from './demo-image.js';
+import { buildGrid, queryRadius } from './spatial-grid.js';
 
 const canvas = document.getElementById('scene');
 const ctx = canvas.getContext('2d');
@@ -11,6 +12,7 @@ const uploadError = document.getElementById('upload-error');
 
 let currentImage = null;
 let dots = [];
+let grid = null;
 let W = 0;
 let H = 0;
 let animating = false;
@@ -37,6 +39,7 @@ function resample() {
   if (!currentImage || !W || !H) return;
   const result = sampleImage(currentImage, W, H);
   dots = result.dots;
+  grid = buildGrid(dots, MOUSE_RADIUS);
 }
 
 function resize() {
@@ -54,23 +57,31 @@ function resize() {
 // --- Animation loop ---
 
 function updateDots() {
+  // Ease all dots toward their origin
   for (let i = 0; i < dots.length; i++) {
     const d = dots[i];
+    d.x += (d.ox - d.x) * MOUSE_EASING;
+    d.y += (d.oy - d.y) * MOUSE_EASING;
+  }
+
+  // Displace only nearby dots via spatial grid
+  if (!grid || mouse.x < -1000) return;
+
+  const nearby = queryRadius(grid, mouse.x, mouse.y, MOUSE_RADIUS);
+  for (let i = 0; i < nearby.length; i++) {
+    const d = nearby[i];
     const dx = d.ox - mouse.x;
     const dy = d.oy - mouse.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    let targetX = d.ox;
-    let targetY = d.oy;
-
     if (dist < MOUSE_RADIUS && dist > 0) {
       const force = (1 - dist / MOUSE_RADIUS) * MOUSE_STRENGTH;
-      targetX = d.ox + (dx / dist) * force;
-      targetY = d.oy + (dy / dist) * force;
+      const targetX = d.ox + (dx / dist) * force;
+      const targetY = d.oy + (dy / dist) * force;
+      // Override the ease-to-origin with displaced target
+      d.x += (targetX - d.x) * MOUSE_EASING;
+      d.y += (targetY - d.y) * MOUSE_EASING;
     }
-
-    d.x += (targetX - d.x) * MOUSE_EASING;
-    d.y += (targetY - d.y) * MOUSE_EASING;
   }
 }
 
