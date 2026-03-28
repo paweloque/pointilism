@@ -9,6 +9,8 @@ const canvasArea = document.getElementById('canvas-area');
 const uploadOverlay = document.getElementById('upload-overlay');
 const fileInput = document.getElementById('file-input');
 const uploadError = document.getElementById('upload-error');
+const btnUpload = document.getElementById('btn-upload');
+const particleCountEl = document.getElementById('particle-count');
 
 let currentImage = null;
 let dots = [];
@@ -40,6 +42,7 @@ function resample() {
   const result = sampleImage(currentImage, W, H);
   dots = result.dots;
   grid = buildGrid(dots, MOUSE_RADIUS);
+  particleCountEl.textContent = result.particleCount.toLocaleString() + ' particles';
 }
 
 function resize() {
@@ -136,6 +139,7 @@ async function handleFile(file) {
 }
 
 uploadOverlay.addEventListener('click', () => fileInput.click());
+btnUpload.addEventListener('click', () => fileInput.click());
 
 fileInput.addEventListener('change', () => {
   if (fileInput.files.length > 0) {
