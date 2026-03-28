@@ -2,7 +2,7 @@ import { sampleImage, hexLuminance } from './sampler.js';
 import { drawDots } from './renderer.js';
 import { createDemoImage } from './demo-image.js';
 import { buildGrid, queryRadius } from './spatial-grid.js';
-import { state, set, onChange } from './state.js';
+import { state, set, onChange, resetState, resetGroup } from './state.js';
 
 const canvas = document.getElementById('scene');
 const ctx = canvas.getContext('2d');
@@ -281,6 +281,15 @@ document.querySelectorAll('.preset-btn').forEach((el) => {
 onChange(() => {
   if (applyingPreset) return;
   document.querySelectorAll('.preset-btn').forEach((s) => s.classList.remove('active'));
+});
+
+// --- Reset ---
+
+document.querySelectorAll('.reset-link').forEach((el) => {
+  el.addEventListener('click', () => {
+    resetGroup(el.dataset.reset);
+    syncControlsFromState();
+  });
 });
 
 // --- Upload ---

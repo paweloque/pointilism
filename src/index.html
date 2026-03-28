@@ -59,6 +59,31 @@
     letter-spacing: 0.2em;
     color: var(--mid);
     margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+  }
+
+  .reset-link {
+    font-size: 0.6rem;
+    color: var(--mid);
+    cursor: pointer;
+    text-transform: lowercase;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    transition: opacity 0.15s;
+    border: none;
+    background: none;
+    font-family: inherit;
+    padding: 0;
+  }
+
+  .section:hover .reset-link {
+    opacity: 0.6;
+  }
+
+  .reset-link:hover {
+    opacity: 1 !important;
   }
 
   .control {
@@ -405,7 +430,7 @@
   </div>
 
   <div class="section">
-    <div class="section-title">Dots</div>
+    <div class="section-title"><span>Dots</span><button class="reset-link" data-reset="dots">reset</button></div>
     <div class="control">
       <div class="control-header">
         <label>Density</label><span class="value" id="val-stride">3</span>
@@ -441,7 +466,7 @@
   </div>
 
   <div class="section">
-    <div class="section-title">Color</div>
+    <div class="section-title"><span>Color</span><button class="reset-link" data-reset="color">reset</button></div>
     <div class="control">
       <label style="margin-bottom:8px;display:block">Background</label>
       <div class="color-row">
@@ -467,7 +492,7 @@
   </div>
 
   <div class="section">
-    <div class="section-title">Interaction</div>
+    <div class="section-title"><span>Interaction</span><button class="reset-link" data-reset="interaction">reset</button></div>
     <div class="control">
       <div class="control-header">
         <label>Radius</label><span class="value" id="val-radius">80px</span>
@@ -483,7 +508,7 @@
   </div>
 
   <div class="section">
-    <div class="section-title">Motion</div>
+    <div class="section-title"><span>Motion</span><button class="reset-link" data-reset="motion">reset</button></div>
     <div class="toggle-row">
       <label style="font-size:0.8rem">Breathing</label>
       <div class="toggle" data-toggle="breathing"></div>
