@@ -12,6 +12,12 @@ const DEFAULTS = {
   // Focal point
   focalX: 0.5,
   focalY: 0.5,
+  // Text overlay
+  textContent: '',
+  textFont: 'Inter',
+  textSize: 64,
+  textX: 0.5,
+  textY: 0.5,
   // Interaction
   mouseRadius: 80,
   mouseStrength: 18,
@@ -26,7 +32,7 @@ const DEFAULTS = {
   escape: true,
 };
 
-const RESAMPLE_KEYS = new Set(['stride', 'threshold', 'bgColor', 'focalX', 'focalY']);
+const RESAMPLE_KEYS = new Set(['stride', 'threshold', 'bgColor', 'focalX', 'focalY', 'textContent', 'textFont', 'textSize', 'textX', 'textY']);
 
 const GROUPS = {
   dots: ['stride', 'dotSize', 'sizeScaling', 'threshold', 'dotShape', 'focalX', 'focalY'],
