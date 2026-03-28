@@ -127,8 +127,12 @@ function resize() {
 function updateDots(t) {
   const easing = state.mouseEasing;
   const doBreathing = state.breathing;
+  const breatheAmp = state.breatheIntensity;
   const doSway = state.sway;
+  const swayMult = state.swayIntensity;
   const doRise = state.rise;
+  const riseMult = state.riseSpeedMultiplier;
+  const doEscape = state.escape;
 
   for (let i = 0; i < dots.length; i++) {
     const d = dots[i];
@@ -140,13 +144,13 @@ function updateDots(t) {
 
     // Sway: lateral drift
     if (doSway) {
-      px += Math.sin(t * d.swayFreqX + d.swayPhaseX) * d.swayAmpX;
-      py += Math.cos(t * d.swayFreqY + d.swayPhaseY) * d.swayAmpY * 0.4;
+      px += Math.sin(t * d.swayFreqX + d.swayPhaseX) * d.swayAmpX * swayMult;
+      py += Math.cos(t * d.swayFreqY + d.swayPhaseY) * d.swayAmpY * 0.4 * swayMult;
     }
 
     // Rise: upward drift with loop
     if (doRise) {
-      const rise = ((d.riseOffset * d.maxRise) + t * d.riseSpeed) % d.maxRise;
+      const rise = ((d.riseOffset * d.maxRise) + t * d.riseSpeed * riseMult) % d.maxRise;
       const progress = rise / d.maxRise;
       py -= rise;
 
@@ -156,15 +160,17 @@ function updateDots(t) {
       alphaMultiplier *= fadeIn * fadeOut;
 
       // Escape
-      const escapeProgress = Math.max(0, (progress - 0.65) / 0.35);
-      const escapeCurve = escapeProgress * escapeProgress;
-      px += d.escapeDX * escapeCurve;
-      py += d.escapeDY * escapeCurve;
+      if (doEscape) {
+        const escapeProgress = Math.max(0, (progress - 0.65) / 0.35);
+        const escapeCurve = escapeProgress * escapeProgress;
+        px += d.escapeDX * escapeCurve;
+        py += d.escapeDY * escapeCurve;
+      }
     }
 
     // Breathing: opacity pulse
     if (doBreathing) {
-      const breathe = 0.88 + 0.12 * Math.sin(t * d.breatheFreq + d.breathePhase);
+      const breathe = (1 - breatheAmp) + breatheAmp * Math.sin(t * d.breatheFreq + d.breathePhase);
       alphaMultiplier *= breathe;
     }
 
@@ -237,6 +243,9 @@ function syncControlsFromState() {
   setSlider('ctrl-tint', 'val-tint', state.tintBlend, state.tintBlend > 0 ? state.tintBlend + '%' : 'off');
   setSlider('ctrl-radius', 'val-radius', state.mouseRadius, state.mouseRadius + 'px');
   setSlider('ctrl-strength', 'val-strength', state.mouseStrength, String(state.mouseStrength));
+  setSlider('ctrl-breathe-int', 'val-breathe-int', state.breatheIntensity * 100, Math.round(state.breatheIntensity * 100) + '%');
+  setSlider('ctrl-sway-int', 'val-sway-int', state.swayIntensity * 100, Math.round(state.swayIntensity * 100) + '%');
+  setSlider('ctrl-rise-speed', 'val-rise-speed', state.riseSpeedMultiplier * 100, Math.round(state.riseSpeedMultiplier * 100) + '%');
 
   // Focal point
   updateFocalPointPosition();
@@ -291,6 +300,29 @@ tintColorInput.addEventListener('input', () => {
 set('tintColor', tintColorInput.value);
 wireSlider('ctrl-radius', 'val-radius', 'mouseRadius', (v) => v, (v) => v + 'px');
 wireSlider('ctrl-strength', 'val-strength', 'mouseStrength', (v) => v, (v) => String(v));
+wireSlider('ctrl-breathe-int', 'val-breathe-int', 'breatheIntensity', (v) => v / 100, (v) => Math.round(v * 100) + '%');
+wireSlider('ctrl-sway-int', 'val-sway-int', 'swayIntensity', (v) => v / 100, (v) => Math.round(v * 100) + '%');
+wireSlider('ctrl-rise-speed', 'val-rise-speed', 'riseSpeedMultiplier', (v) => v / 100, (v) => Math.round(v * 100) + '%');
+
+// Physics presets
+const PHYSICS_PRESETS = {
+  off: { breathing: false, breatheIntensity: 0.12, sway: false, swayIntensity: 1.0, rise: false, riseSpeedMultiplier: 1.0, escape: true },
+  subtle: { breathing: true, breatheIntensity: 0.08, sway: true, swayIntensity: 0.5, rise: false, riseSpeedMultiplier: 1.0, escape: true },
+  animated: { breathing: true, breatheIntensity: 0.15, sway: true, swayIntensity: 1.0, rise: true, riseSpeedMultiplier: 1.0, escape: true },
+};
+
+document.querySelectorAll('[data-physics]').forEach((el) => {
+  el.addEventListener('click', () => {
+    const p = PHYSICS_PRESETS[el.dataset.physics];
+    if (!p) return;
+    applyingPreset = true;
+    Object.entries(p).forEach(([k, v]) => set(k, v));
+    applyingPreset = false;
+    document.querySelectorAll('[data-physics]').forEach((s) => s.classList.remove('active'));
+    el.classList.add('active');
+    syncControlsFromState();
+  });
+});
 
 // Color swatches
 document.querySelectorAll('.color-swatch').forEach((el) => {

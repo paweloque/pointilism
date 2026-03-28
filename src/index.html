@@ -630,17 +630,44 @@
 
   <div class="section">
     <div class="section-title"><span>Motion</span><button class="reset-link" data-reset="motion">reset</button></div>
+    <div class="preset-row" style="margin-bottom:14px">
+      <button class="preset-btn" data-physics="off">off</button>
+      <button class="preset-btn" data-physics="subtle">subtle</button>
+      <button class="preset-btn" data-physics="animated">animated</button>
+    </div>
     <div class="toggle-row">
       <label style="font-size:0.8rem">Breathing</label>
       <div class="toggle" data-toggle="breathing"></div>
+    </div>
+    <div class="control">
+      <div class="control-header">
+        <label>Intensity</label><span class="value" id="val-breathe-int">12%</span>
+      </div>
+      <input type="range" id="ctrl-breathe-int" min="0" max="30" value="12">
     </div>
     <div class="toggle-row">
       <label style="font-size:0.8rem">Sway</label>
       <div class="toggle" data-toggle="sway"></div>
     </div>
+    <div class="control">
+      <div class="control-header">
+        <label>Intensity</label><span class="value" id="val-sway-int">100%</span>
+      </div>
+      <input type="range" id="ctrl-sway-int" min="0" max="300" value="100">
+    </div>
     <div class="toggle-row">
       <label style="font-size:0.8rem">Rise</label>
       <div class="toggle" data-toggle="rise"></div>
+    </div>
+    <div class="control">
+      <div class="control-header">
+        <label>Speed</label><span class="value" id="val-rise-speed">100%</span>
+      </div>
+      <input type="range" id="ctrl-rise-speed" min="10" max="300" value="100">
+    </div>
+    <div class="toggle-row">
+      <label style="font-size:0.8rem">Escape</label>
+      <div class="toggle on" data-toggle="escape"></div>
     </div>
   </div>
 
