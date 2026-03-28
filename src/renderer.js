@@ -19,6 +19,15 @@ function tintedColor(d, tintRgb, blend) {
 }
 
 /**
+ * Compute dot size. If sizeParams provided, compute from brightness at draw time.
+ * Otherwise fall back to pre-baked d.size.
+ */
+function dotSize(d, sizeParams) {
+  if (sizeParams) return sizeParams.base + d.brightness * sizeParams.scaling;
+  return d.size;
+}
+
+/**
  * Draw dots onto a canvas context.
  *
  * @param {CanvasRenderingContext2D} ctx
@@ -26,8 +35,9 @@ function tintedColor(d, tintRgb, blend) {
  * @param {string} [bgColor='#000']
  * @param {string} [shape='circle']
  * @param {object} [tint] - { color: '#hex'|null, blend: 0-100 }
+ * @param {object} [sizeParams] - { base: number, scaling: number } for draw-time size
  */
-export function drawDots(ctx, dots, bgColor = '#000', shape = 'circle', tint = null) {
+export function drawDots(ctx, dots, bgColor = '#000', shape = 'circle', tint = null, sizeParams = null) {
   const { width, height } = ctx.canvas;
 
   ctx.fillStyle = bgColor;
@@ -37,47 +47,49 @@ export function drawDots(ctx, dots, bgColor = '#000', shape = 'circle', tint = n
   const blend = tintRgb ? tint.blend / 100 : 0;
 
   if (shape === 'square') {
-    drawSquares(ctx, dots, tintRgb, blend);
+    drawSquares(ctx, dots, tintRgb, blend, sizeParams);
   } else if (shape === 'soft') {
-    drawSoft(ctx, dots, tintRgb, blend);
+    drawSoft(ctx, dots, tintRgb, blend, sizeParams);
   } else {
-    drawCircles(ctx, dots, tintRgb, blend);
+    drawCircles(ctx, dots, tintRgb, blend, sizeParams);
   }
 
   ctx.globalAlpha = 1;
 }
 
-function drawCircles(ctx, dots, tintRgb, blend) {
+function drawCircles(ctx, dots, tintRgb, blend, sp) {
   for (let i = 0; i < dots.length; i++) {
     const d = dots[i];
     ctx.globalAlpha = d.drawAlpha !== undefined ? d.drawAlpha : d.alpha;
     ctx.fillStyle = tintedColor(d, tintRgb, blend);
     ctx.beginPath();
-    ctx.arc(d.x, d.y, d.size, 0, 6.2832);
+    ctx.arc(d.x, d.y, dotSize(d, sp), 0, 6.2832);
     ctx.fill();
   }
 }
 
-function drawSquares(ctx, dots, tintRgb, blend) {
+function drawSquares(ctx, dots, tintRgb, blend, sp) {
   for (let i = 0; i < dots.length; i++) {
     const d = dots[i];
     ctx.globalAlpha = d.drawAlpha !== undefined ? d.drawAlpha : d.alpha;
     ctx.fillStyle = tintedColor(d, tintRgb, blend);
-    const s = d.size * 2;
-    ctx.fillRect(d.x - d.size, d.y - d.size, s, s);
+    const s = dotSize(d, sp);
+    const s2 = s * 2;
+    ctx.fillRect(d.x - s, d.y - s, s2, s2);
   }
 }
 
-function drawSoft(ctx, dots, tintRgb, blend) {
+function drawSoft(ctx, dots, tintRgb, blend, sp) {
   for (let i = 0; i < dots.length; i++) {
     const d = dots[i];
-    const r = d.size * 2;
+    const s = dotSize(d, sp);
+    const r = s * 2;
     const color = tintedColor(d, tintRgb, blend);
-    // Extract rgb values from the color string for gradient
     const match = color.match(/\d+/g);
     const [cr, cg, cb] = match;
+    const a = d.drawAlpha !== undefined ? d.drawAlpha : d.alpha;
     const grad = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, r);
-    grad.addColorStop(0, `rgba(${cr},${cg},${cb},${d.alpha})`);
+    grad.addColorStop(0, `rgba(${cr},${cg},${cb},${a})`);
     grad.addColorStop(1, `rgba(${cr},${cg},${cb},0)`);
     ctx.globalAlpha = 1;
     ctx.fillStyle = grad;

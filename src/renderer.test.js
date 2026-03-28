@@ -17,8 +17,8 @@ function makeMockCtx(width = 100, height = 100) {
 }
 
 const dots = [
-  { x: 10, y: 20, r: 255, g: 128, b: 64, size: 1.5, alpha: 0.8 },
-  { x: 30, y: 40, r: 100, g: 200, b: 50, size: 0.9, alpha: 0.5 },
+  { x: 10, y: 20, r: 255, g: 128, b: 64, size: 1.5, alpha: 0.8, brightness: 0.7 },
+  { x: 30, y: 40, r: 100, g: 200, b: 50, size: 0.9, alpha: 0.5, brightness: 0.4 },
 ];
 
 describe('drawDots', () => {
@@ -55,7 +55,7 @@ describe('drawDots', () => {
 
   it('applies tint when blend > 0', () => {
     const ctx = makeMockCtx();
-    const whiteDot = [{ x: 5, y: 5, r: 255, g: 255, b: 255, size: 1, alpha: 1 }];
+    const whiteDot = [{ x: 5, y: 5, r: 255, g: 255, b: 255, size: 1, alpha: 1, brightness: 1 }];
     drawDots(ctx, whiteDot, '#000', 'circle', { color: '#ff0000', blend: 100 });
     // At 100% blend, color should be pure red
     expect(ctx.fillStyle).toBe('rgb(255,0,0)');
@@ -63,8 +63,17 @@ describe('drawDots', () => {
 
   it('shows original colors when blend is 0', () => {
     const ctx = makeMockCtx();
-    const whiteDot = [{ x: 5, y: 5, r: 200, g: 100, b: 50, size: 1, alpha: 1 }];
+    const whiteDot = [{ x: 5, y: 5, r: 200, g: 100, b: 50, size: 1, alpha: 1, brightness: 0.5 }];
     drawDots(ctx, whiteDot, '#000', 'circle', { color: '#ff0000', blend: 0 });
     expect(ctx.fillStyle).toBe('rgb(200,100,50)');
+  });
+
+  it('uses sizeParams for dynamic sizing when provided', () => {
+    const ctx = makeMockCtx();
+    const d = [{ x: 5, y: 5, r: 255, g: 255, b: 255, size: 99, alpha: 1, brightness: 1.0 }];
+    // size = base + brightness * scaling = 0.5 + 1.0 * 1.0 = 1.5
+    drawDots(ctx, d, '#000', 'circle', null, { base: 0.5, scaling: 1.0 });
+    // arc should be called with radius 1.5, not the baked size of 99
+    expect(ctx.arc).toHaveBeenCalledWith(5, 5, 1.5, 0, 6.2832);
   });
 });

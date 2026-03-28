@@ -319,6 +319,9 @@ function animate(t) {
   drawDots(ctx, dots, state.bgColor, state.dotShape, {
     color: state.tintColor,
     blend: state.tintBlend,
+  }, {
+    base: state.dotSize,
+    scaling: state.sizeScaling,
   });
 }
 
