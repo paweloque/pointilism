@@ -37,7 +37,7 @@ ro.observe(canvas);
 
 async function init() {
   resize();
-  currentImage = await createDemoImage(512);
+  currentImage = await createDemoImage(W, H);
   render();
 }
 

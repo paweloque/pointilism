@@ -1,23 +1,26 @@
 /**
  * Generate a simple demo image (radial gradient) as an HTMLImageElement.
+ * Sized to match the target canvas so cover-fit doesn't crop it.
  * Used as the first-run placeholder until task 06 adds a real demo image.
  */
-export function createDemoImage(size = 256) {
+export function createDemoImage(width = 800, height = 600) {
   const c = document.createElement('canvas');
-  c.width = size;
-  c.height = size;
+  c.width = width;
+  c.height = height;
   const ctx = c.getContext('2d');
 
-  // Radial gradient: bright center, dark edges
-  const cx = size / 2;
-  const cy = size / 2;
-  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, size * 0.5);
+  const cx = width / 2;
+  const cy = height / 2;
+  const radius = Math.min(width, height) * 0.45;
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
   grad.addColorStop(0, '#ffffff');
-  grad.addColorStop(0.4, '#aaaacc');
-  grad.addColorStop(0.7, '#445566');
+  grad.addColorStop(0.3, '#ccbbdd');
+  grad.addColorStop(0.6, '#556688');
   grad.addColorStop(1, '#000000');
+  ctx.fillStyle = '#000';
+  ctx.fillRect(0, 0, width, height);
   ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, size, size);
+  ctx.fillRect(0, 0, width, height);
 
   return new Promise((resolve) => {
     const img = new Image();
