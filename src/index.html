@@ -101,6 +101,10 @@
     align-items: baseline;
   }
 
+  .section.collapsed .section-body { display: none; }
+  .section.collapsed .section-title { margin-bottom: 0; }
+  #section-sound .section-title { cursor: pointer; }
+
   .reset-link {
     font-size: 0.6rem;
     color: var(--mid);
@@ -737,17 +741,19 @@
     </div>
   </div>
 
-  <div class="section">
+  <div class="section collapsed" id="section-sound">
     <div class="section-title"><span>Sound</span><button class="reset-link" data-reset="sound">reset</button></div>
-    <div class="toggle-row">
-      <label style="font-size:0.8rem">Enabled</label>
-      <div class="toggle" data-toggle="sonification"></div>
-    </div>
-    <div class="control">
-      <div class="control-header">
-        <label>Volume</label><span class="value" id="val-volume">50%</span>
+    <div class="section-body">
+      <div class="toggle-row">
+        <label style="font-size:0.8rem">Enabled</label>
+        <div class="toggle" data-toggle="sonification"></div>
       </div>
-      <input type="range" id="ctrl-volume" min="0" max="100" value="50">
+      <div class="control">
+        <div class="control-header">
+          <label>Volume</label><span class="value" id="val-volume">50%</span>
+        </div>
+        <input type="range" id="ctrl-volume" min="0" max="100" value="50">
+      </div>
     </div>
   </div>
 

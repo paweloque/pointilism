@@ -551,6 +551,13 @@ onChange(() => {
   document.querySelectorAll('.preset-btn').forEach((s) => s.classList.remove('active'));
 });
 
+// --- Collapsible sections ---
+
+document.getElementById('section-sound').querySelector('.section-title').addEventListener('click', (e) => {
+  if (e.target.classList.contains('reset-link')) return;
+  document.getElementById('section-sound').classList.toggle('collapsed');
+});
+
 // --- Reset ---
 
 document.querySelectorAll('.reset-link').forEach((el) => {
