@@ -18,6 +18,22 @@ export function createAudioEngine(poolSize = 12) {
   let masterGain = null;
   let slots = null;
   const candidates = [];
+  const waveCache = new Map();
+
+  function getWave(r, g, b) {
+    const qr = (r >> 4);
+    const qg = (g >> 4);
+    const qb = (b >> 4);
+    const key = (qr << 8) | (qg << 4) | qb;
+    let wave = waveCache.get(key);
+    if (!wave) {
+      const real = new Float32Array([0, 1, qr / 15, qg / 15, qb / 15]);
+      const imag = new Float32Array(5);
+      wave = ctx.createPeriodicWave(real, imag);
+      waveCache.set(key, wave);
+    }
+    return wave;
+  }
 
   function start() {
     if (ctx) return;
@@ -51,6 +67,7 @@ export function createAudioEngine(poolSize = 12) {
     ctx = null;
     masterGain = null;
     slots = null;
+    waveCache.clear();
   }
 
   function update(nearbyDots, mouseX, mouseY, radius) {
@@ -88,8 +105,7 @@ export function createAudioEngine(poolSize = 12) {
         const g = (1 - dist / radius) / poolSize;
         slot.gain.gain.setTargetAtTime(g, now, 0.015);
 
-        const type = dot.size < 0.5 ? 'sine' : dot.size < 0.8 ? 'triangle' : 'square';
-        slot.osc.type = type;
+        slot.osc.setPeriodicWave(getWave(dot.r, dot.g, dot.b));
 
         const r = dot.r, gr = dot.g, b = dot.b;
         if (r !== gr || gr !== b) {

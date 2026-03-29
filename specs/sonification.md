@@ -14,8 +14,8 @@ Each dot near the cursor becomes one potential partial (sine wave). Its audio pr
 |---|---|---|
 | `brightness` (0–1) | Frequency | Quantized to a musical scale (see below) |
 | Distance to cursor | Amplitude | Inverse linear falloff: `1 - dist / radius`, with 10–20 ms attack/release envelope to avoid clicks |
-| `size` | Waveform | Small → sine, medium → triangle, large → square (thresholds TBD during implementation) |
-| Hue (when tint active) | Stereo pan | Hue mapped to -1…+1 pan position (optional, skip if no tint) |
+| RGB color | Timbre (harmonics) | R → 2nd harmonic amplitude, G → 3rd, B → 4th. Uses `PeriodicWave` with cached quantized entries. Fundamental always present at amplitude 1.0. |
+| Hue (when chromatic) | Stereo pan | Hue mapped to -1…+1 pan position (skip if grayscale) |
 
 ### Frequency scale
 
