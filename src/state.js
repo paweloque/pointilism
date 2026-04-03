@@ -4,7 +4,7 @@ const DEFAULTS = {
   stride: 3,
   dotSize: 0.4,
   sizeScaling: 0.65,
-  threshold: 0.01,
+  threshold: 0.05,
   dotShape: 'circle',
   // Color
   tintColor: null,
@@ -37,8 +37,6 @@ const DEFAULTS = {
   brownianStrength: 0.5,
   hueRotate: false,
   hueRotateSpeed: 1.0,
-  sonification: false,
-  sonificationVolume: 50,
 };
 
 const RESAMPLE_KEYS = new Set(['stride', 'threshold', 'bgColor', 'focalX', 'focalY', 'textContent', 'textFont', 'textSize', 'textX', 'textY']);
@@ -48,7 +46,6 @@ const GROUPS = {
   color: ['bgColor', 'tintColor', 'tintBlend', 'hueRotate', 'hueRotateSpeed'],
   interaction: ['interactionEnabled', 'mouseRadius', 'mouseStrength', 'mouseEasing'],
   motion: ['breathing', 'breatheIntensity', 'sway', 'swayIntensity', 'rise', 'riseSpeedMultiplier', 'escape', 'sparkle', 'sparkleSpeed', 'brownian', 'brownianStrength'],
-  sound: ['sonification', 'sonificationVolume'],
 };
 
 const listeners = [];

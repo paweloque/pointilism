@@ -5,7 +5,6 @@ import { createDemoImage } from './demo-image.js';
 import { buildGrid, queryRadius } from './spatial-grid.js';
 import { state, set, onChange, resetState, resetGroup } from './state.js';
 import { downloadExport, downloadPNG } from './export.js';
-import { createAudioEngine } from './audio.js';
 
 inject();
 
@@ -48,7 +47,6 @@ let grid = null;
 let W = 0;
 let H = 0;
 let animating = false;
-const audioEngine = createAudioEngine(12);
 
 // --- Mouse ---
 
@@ -308,12 +306,6 @@ function updateDots(t) {
     }
   }
 
-  if (state.sonification && grid) {
-    if (!nearby && mouse.x > -1000) {
-      nearby = queryRadius(grid, mouse.x, mouse.y, state.mouseRadius);
-    }
-    audioEngine.update(nearby || [], mouse.x, mouse.y, state.mouseRadius);
-  }
 }
 
 // --- Performance ---
@@ -376,17 +368,6 @@ onChange((key, tier) => {
   if (key === 'mouseRadius' && dots.length > 0) {
     grid = buildGrid(dots, state.mouseRadius);
   }
-  if (key === 'sonification') {
-    if (state.sonification) {
-      audioEngine.start();
-      audioEngine.setMasterVolume(state.sonificationVolume);
-    } else {
-      audioEngine.stop();
-    }
-  }
-  if (key === 'sonificationVolume') {
-    audioEngine.setMasterVolume(state.sonificationVolume);
-  }
 });
 
 // --- Sidebar controls ---
@@ -405,7 +386,6 @@ function syncControlsFromState() {
   setSlider('ctrl-rise-speed', 'val-rise-speed', state.riseSpeedMultiplier * 100, Math.round(state.riseSpeedMultiplier * 100) + '%');
   setSlider('ctrl-sparkle-speed', 'val-sparkle-speed', state.sparkleSpeed * 100, Math.round(state.sparkleSpeed * 100) + '%');
   setSlider('ctrl-brownian-str', 'val-brownian-str', state.brownianStrength * 100, Math.round(state.brownianStrength * 100) + '%');
-  setSlider('ctrl-volume', 'val-volume', state.sonificationVolume, Math.round(state.sonificationVolume) + '%');
   setSlider('ctrl-hue-speed', 'val-hue-speed', state.hueRotateSpeed * 100, Math.round(state.hueRotateSpeed * 100) + '%');
 
   // Focal point
@@ -467,7 +447,6 @@ wireSlider('ctrl-sway-int', 'val-sway-int', 'swayIntensity', (v) => v / 100, (v)
 wireSlider('ctrl-rise-speed', 'val-rise-speed', 'riseSpeedMultiplier', (v) => v / 100, (v) => Math.round(v * 100) + '%');
 wireSlider('ctrl-sparkle-speed', 'val-sparkle-speed', 'sparkleSpeed', (v) => v / 100, (v) => Math.round(v * 100) + '%');
 wireSlider('ctrl-brownian-str', 'val-brownian-str', 'brownianStrength', (v) => v / 100, (v) => Math.round(v * 100) + '%');
-wireSlider('ctrl-volume', 'val-volume', 'sonificationVolume', v => v, v => Math.round(v) + '%');
 
 // Physics presets
 const PHYSICS_PRESETS = {
@@ -527,16 +506,16 @@ function updateInteractionDim() {
 
 // Preset buttons
 const PRESETS = {
-  subtle: { stride: 4, dotSize: 0.3, sizeScaling: 0.5, threshold: 0.01, bgColor: '#000', dotShape: 'circle', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 80, mouseStrength: 12, mouseEasing: 0.06, breathing: true, sway: false, rise: false, sparkle: false, brownian: false },
-  dense:  { stride: 2, dotSize: 0.5, sizeScaling: 0.8, threshold: 0.01, bgColor: '#000', dotShape: 'circle', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 60, mouseStrength: 18, mouseEasing: 0.08, breathing: false, sway: false, rise: false, sparkle: false, brownian: false },
-  dreamy: { stride: 3, dotSize: 0.4, sizeScaling: 0.65, threshold: 0.01, bgColor: '#0a0a2e', dotShape: 'circle', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 100, mouseStrength: 10, mouseEasing: 0.04, breathing: true, sway: true, rise: false, sparkle: false, brownian: false },
-  energy: { stride: 2, dotSize: 0.6, sizeScaling: 1.0, threshold: 0.005, bgColor: '#000', dotShape: 'circle', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 120, mouseStrength: 30, mouseEasing: 0.12, breathing: true, sway: true, rise: true, sparkle: false, brownian: false },
-  neon:   { stride: 3, dotSize: 0.45, sizeScaling: 0.7, threshold: 0.01, bgColor: '#000', dotShape: 'soft', tintColor: '#ff00ff', tintBlend: 40, hueRotate: false, mouseRadius: 100, mouseStrength: 15, mouseEasing: 0.06, breathing: true, sway: true, swayIntensity: 1.2, rise: false, sparkle: true, sparkleSpeed: 1.2, brownian: false },
-  seurat: { stride: 2, dotSize: 0.25, sizeScaling: 0.4, threshold: 0.005, bgColor: '#f5f0e8', dotShape: 'circle', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 50, mouseStrength: 8, mouseEasing: 0.05, breathing: false, sway: false, rise: false, sparkle: false, brownian: false },
-  ember:  { stride: 3, dotSize: 0.4, sizeScaling: 0.8, threshold: 0.01, bgColor: '#0a0000', dotShape: 'circle', tintColor: '#ff6600', tintBlend: 35, hueRotate: false, mouseRadius: 90, mouseStrength: 20, mouseEasing: 0.08, breathing: true, breatheIntensity: 0.15, sway: false, rise: true, riseSpeedMultiplier: 0.8, sparkle: false, brownian: true, brownianStrength: 0.6 },
-  cosmos: { stride: 5, dotSize: 0.35, sizeScaling: 0.5, threshold: 0.008, bgColor: '#050520', dotShape: 'soft', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 120, mouseStrength: 10, mouseEasing: 0.04, breathing: true, breatheIntensity: 0.1, sway: true, swayIntensity: 0.4, rise: false, sparkle: true, sparkleSpeed: 0.6, brownian: false },
-  mosaic: { stride: 2, dotSize: 0.7, sizeScaling: 0.3, threshold: 0.01, bgColor: '#1a1a1a', dotShape: 'square', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 70, mouseStrength: 15, mouseEasing: 0.08, breathing: false, sway: false, rise: false, sparkle: false, brownian: false },
-  aurora: { stride: 3, dotSize: 0.45, sizeScaling: 0.6, threshold: 0.01, bgColor: '#0a0a1a', dotShape: 'soft', tintColor: null, tintBlend: 0, hueRotate: true, hueRotateSpeed: 0.8, mouseRadius: 100, mouseStrength: 12, mouseEasing: 0.05, breathing: true, breatheIntensity: 0.12, sway: true, swayIntensity: 0.8, rise: false, sparkle: false, brownian: false },
+  subtle: { stride: 4, dotSize: 0.3, sizeScaling: 0.5, threshold: 0.03, bgColor: '#000', dotShape: 'circle', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 80, mouseStrength: 12, mouseEasing: 0.06, breathing: true, sway: false, rise: false, sparkle: false, brownian: false },
+  dense:  { stride: 2, dotSize: 0.5, sizeScaling: 0.8, threshold: 0.02, bgColor: '#000', dotShape: 'circle', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 60, mouseStrength: 18, mouseEasing: 0.08, breathing: false, sway: false, rise: false, sparkle: false, brownian: false },
+  dreamy: { stride: 3, dotSize: 0.4, sizeScaling: 0.65, threshold: 0.05, bgColor: '#0a0a2e', dotShape: 'circle', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 100, mouseStrength: 10, mouseEasing: 0.04, breathing: true, sway: true, rise: false, sparkle: false, brownian: false },
+  energy: { stride: 2, dotSize: 0.6, sizeScaling: 1.0, threshold: 0.01, bgColor: '#000', dotShape: 'circle', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 120, mouseStrength: 30, mouseEasing: 0.12, breathing: true, sway: true, rise: true, sparkle: false, brownian: false },
+  neon:   { stride: 3, dotSize: 0.45, sizeScaling: 0.7, threshold: 0.03, bgColor: '#000', dotShape: 'soft', tintColor: '#ff00ff', tintBlend: 40, hueRotate: false, mouseRadius: 100, mouseStrength: 15, mouseEasing: 0.06, breathing: true, sway: true, swayIntensity: 1.2, rise: false, sparkle: true, sparkleSpeed: 1.2, brownian: false },
+  seurat: { stride: 2, dotSize: 0.25, sizeScaling: 0.4, threshold: 0.01, bgColor: '#f5f0e8', dotShape: 'circle', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 50, mouseStrength: 8, mouseEasing: 0.05, breathing: false, sway: false, rise: false, sparkle: false, brownian: false },
+  ember:  { stride: 3, dotSize: 0.4, sizeScaling: 0.8, threshold: 0.03, bgColor: '#0a0000', dotShape: 'circle', tintColor: '#ff6600', tintBlend: 35, hueRotate: false, mouseRadius: 90, mouseStrength: 20, mouseEasing: 0.08, breathing: true, breatheIntensity: 0.15, sway: false, rise: true, riseSpeedMultiplier: 0.8, sparkle: false, brownian: true, brownianStrength: 0.6 },
+  cosmos: { stride: 5, dotSize: 0.35, sizeScaling: 0.5, threshold: 0.02, bgColor: '#050520', dotShape: 'soft', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 120, mouseStrength: 10, mouseEasing: 0.04, breathing: true, breatheIntensity: 0.1, sway: true, swayIntensity: 0.4, rise: false, sparkle: true, sparkleSpeed: 0.6, brownian: false },
+  mosaic: { stride: 2, dotSize: 0.7, sizeScaling: 0.3, threshold: 0.03, bgColor: '#1a1a1a', dotShape: 'square', tintColor: null, tintBlend: 0, hueRotate: false, mouseRadius: 70, mouseStrength: 15, mouseEasing: 0.08, breathing: false, sway: false, rise: false, sparkle: false, brownian: false },
+  aurora: { stride: 3, dotSize: 0.45, sizeScaling: 0.6, threshold: 0.03, bgColor: '#0a0a1a', dotShape: 'soft', tintColor: null, tintBlend: 0, hueRotate: true, hueRotateSpeed: 0.8, mouseRadius: 100, mouseStrength: 12, mouseEasing: 0.05, breathing: true, breatheIntensity: 0.12, sway: true, swayIntensity: 0.8, rise: false, sparkle: false, brownian: false },
 };
 
 let applyingPreset = false;
@@ -561,11 +540,6 @@ onChange(() => {
 });
 
 // --- Collapsible sections ---
-
-document.getElementById('section-sound').querySelector('.section-title').addEventListener('click', (e) => {
-  if (e.target.classList.contains('reset-link')) return;
-  document.getElementById('section-sound').classList.toggle('collapsed');
-});
 
 // --- Reset ---
 
